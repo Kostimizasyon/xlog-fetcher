@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="NonStopDotNet.vcxproj" Id="1d4399c6-4e6b-486d-bd44-8817d56aa914" />
+</Solution>
