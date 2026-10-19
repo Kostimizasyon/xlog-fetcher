@@ -1,7 +1,9 @@
 *.exe
 *.out
 *.o
-
+*.d
+./xlog-fetcher
 .env
 *.env
 .env.*
+TODO.md
