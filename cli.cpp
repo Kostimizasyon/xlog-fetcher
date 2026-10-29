@@ -2,12 +2,11 @@
 #include <cstring>
 #include "cli.h"
 
-
 int match_arg(const char* arg)
 {
     if (!strcmp(arg, "-lu") || !strcmp(arg, "--loginuser"))
         return LOGINUSER;
-        
+
     if (!strcmp(arg, "-c") || !strcmp(arg, "--connect"))
         return CONNECT;
 
@@ -16,6 +15,9 @@ int match_arg(const char* arg)
 
     if (!strcmp(arg, "-r") || !strcmp(arg, "--relog"))
         return RELOG;
+
+    if (!strcmp(arg, "-s") || !strcmp(arg, "--stats"))
+        return STATS;
 
     if (!strcmp(arg, "-h") || !strcmp(arg, "--help"))
         return HELP;
@@ -29,20 +31,21 @@ int match_arg(const char* arg)
     return ERROR;
 }
 
-void print_help() 
+void print_help()
 {
     std::cout << R"(Usage: ./xlog-fetcher [OPTIONS]
 
 Session manager and credential authenticator with automated reconnect capabilities.
 
 Options:
-  -u, --username <USER>    Set username (creates or modifies .env automatically)
-  -p, --password <PASS>    Set password (creates or modifies .env automatically)
-  -lu,--loginuser <USER>:<PASS> login to xlog with the provided credentials
-  -c, --connect            Connect using credentials from .env
-  -d, --disconnect         Disconnect active session
-  -r, --reconnect          Force a session reconnect
-  -h, --help               Display this help text and exit
+  -u,  --username <USER>         Set username (creates or modifies .env automatically)
+  -p,  --password <PASS>         Set password (creates or modifies .env automatically)
+  -lu, --loginuser <USER>:<PASS> Login to xlog with the provided credentials
+  -c,  --connect                 Connect using credentials from .env
+  -d,  --disconnect              Disconnect active session
+  -r,  --relog                   Force a session reconnect
+  -s,  --stats                   Show usage statistics
+  -h,  --help                    Display this help text and exit
 
 Notes:
   Providing -u or -p automatically creates or updates the local '.env' file;

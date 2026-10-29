@@ -6,6 +6,7 @@
 #define PASSWORD 6
 #define LOGINUSER 7
 #define KEEP 8
+#define STATS 9
 #define ERROR -1
 
 int match_arg(const char* arg);

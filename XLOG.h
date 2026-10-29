@@ -19,5 +19,6 @@ public:
 	int logout();
 	int login(const LoginProfile& user);
 	int relog(const LoginProfile& user);
+	int get_usage();
 	void keep_connection(const LoginProfile& user); 
 };

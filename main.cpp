@@ -1,6 +1,7 @@
 #include "XLOG.h"
 #include "cli.h"
 #include "LoginProfile.h"
+#include "env.h"
 
 #include "cdotenv/cdotenv_extended.h"
 
@@ -33,8 +34,8 @@ int main(int argc, char** argv)
 
             if (res == USERNAME || res == PASSWORD) {
                 const char* key = (res == PASSWORD) ? "PASSWORD" : "USERNAME";
-                if (replace_env(key, argv[2], NULL) != SUCESS) {
-                    res = write_env(key, argv[2],NULL,NULL);
+                if (replace_env(key, argv[2], ENV_PATH) != SUCESS) {
+                    res = write_env(key, argv[2],ENV_PATH,NULL);
                     if ( res != SUCESS) {
                         std::cerr << "Error writing .env file \n";
                         return -1;
@@ -52,15 +53,13 @@ int main(int argc, char** argv)
                 return -1;
             }
 
-            std::cout << creds.substr(0, pos) << "\n";
-
             user.set_username(creds.substr(0, pos));
             user.set_password(creds.substr(pos + 1));
         }
     }
 
     if (res != LOGINUSER) {
-        read_env(".env");
+        read_env(ENV_PATH);
 
         const char* env_user = std::getenv("USERNAME");
         const char* env_pass = std::getenv("PASSWORD");
@@ -80,6 +79,9 @@ int main(int argc, char** argv)
     XLOG server("http://192.168.1.1");
 
     switch (res) {
+        case STATS:
+            server.get_usage();
+	    break;
         case CONNECT:
         case LOGINUSER:
             server.login(user);

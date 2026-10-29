@@ -3,6 +3,7 @@
 *.o
 *.d
 ./xlog-fetcher
+env.h
 .env
 *.env
 .env.*

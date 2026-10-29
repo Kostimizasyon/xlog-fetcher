@@ -8,6 +8,7 @@ int XLOG::logout() // 1 = logged out, 0 = no active session, -1 = error
     std::cout << "Logging out... \n";
 
     const auto res = server.Get("/index.php?do=auth/logout");
+
     if (!res) {
         std::cerr << "Request failed: " << httplib::to_string(res.error()) << "\n";
         return -1;
@@ -49,6 +50,7 @@ int XLOG::login(const LoginProfile& user) // 1 = logged in, -1 = error
     };
 
     const auto res = server.Post("/index.php?do=auth/auth", params);
+
     if (!res) {
         std::cerr << "Request failed: " << httplib::to_string(res.error()) << "\n";
         return -1;
@@ -75,7 +77,6 @@ int XLOG::login(const LoginProfile& user) // 1 = logged in, -1 = error
         std::cerr << "Login failed\n";
     return -1;
 }
-
 
 int XLOG::relog(const LoginProfile& user)
 {
@@ -135,4 +136,62 @@ void XLOG::keep_connection(const LoginProfile& user)
 
     }
 
+}
+
+int XLOG::get_usage() // 1 = logged out, 0 = success (usage fetched), -1 = error
+{
+    std::cout << "Getting usage... \n";
+
+    const auto res = server.Get("/index.php?do=auth/usage_statistic");
+
+    if (!res) {
+        std::cerr << "Request failed: " << httplib::to_string(res.error()) << "\n";
+        return -1;
+    }
+
+    if (res->status != 200) {
+        std::cerr << "Error, status code: " << res->status << "\n";
+        return -1;
+    }
+
+    const auto json = nlohmann::json::parse(res->body, nullptr, false);
+
+    if (json.is_discarded() || !json.is_object()) {
+        std::cerr << "Unexpected response from server\n";
+        return -1;
+    }
+
+    // Success: {"result":true,"usage":{...}}
+    if (json.value("result", false) && json.contains("usage") && json["usage"].is_object()) {
+        const auto& u = json["usage"];
+
+        const uint64_t down_bytes = u.value("download_bytes", 0ULL);
+        const uint64_t up_bytes   = u.value("upload_bytes", 0ULL);
+        const std::string down    = u.value("download", "");
+        const std::string up      = u.value("upload", "");
+        const std::string weekly  = u.value("weekly_total_download_bytes", "");
+        const std::string monthly = u.value("monthly_total_download_bytes", "");
+
+        std::cout << "Download: " << down << " (" << down_bytes << " bytes)\n"
+                  << "Upload:   " << up   << " (" << up_bytes   << " bytes)\n"
+                  << "Weekly download:  " << weekly  << "\n"
+                  << "Monthly download: " << monthly << "\n";
+        return 0;
+    }
+
+    // Failure / logged-out case: has a "message" string
+    if (json.contains("message") && json["message"].is_string()) {
+        const std::string msg = json["message"].get<std::string>();
+
+        if (msg.find("Oturm") != std::string::npos) {
+            std::cout << "You are not logged in.";
+            return 1;
+        }
+
+        std::cerr << "Error: " << msg << "\n";
+        return -1;
+    }
+
+    std::cerr << "Unexpected response from server\n";
+    return -1;
 }
